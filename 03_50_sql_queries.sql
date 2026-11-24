@@ -1,0 +1,203 @@
+
+USE HRAnalyticsDB;
+GO
+
+-- QUERY 01: Preview all employees
+SELECT TOP (20) * FROM dbo.HR_Employees;
+GO
+
+-- QUERY 02: Total employee count
+SELECT COUNT(*) AS TotalEmployees FROM dbo.HR_Employees;
+GO
+
+-- QUERY 03: Attrition count and percentage
+SELECT Attrition, COUNT(*) AS Employees, CAST(100.0*COUNT(*)/SUM(COUNT(*)) OVER() AS DECIMAL(6,2)) AS EmployeePct FROM dbo.HR_Employees GROUP BY Attrition;
+GO
+
+-- QUERY 04: Department headcount
+SELECT Department, COUNT(*) AS Headcount FROM dbo.HR_Employees GROUP BY Department ORDER BY Headcount DESC;
+GO
+
+-- QUERY 05: Average salary by department
+SELECT Department, AVG(MonthlyIncome) AS AvgMonthlyIncome FROM dbo.HR_Employees GROUP BY Department ORDER BY AvgMonthlyIncome DESC;
+GO
+
+-- QUERY 06: Attrition by department
+SELECT Department, COUNT(*) AS Headcount, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS AttritionCount, CAST(100.0*AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END) AS DECIMAL(6,2)) AS AttritionRatePct FROM dbo.HR_Employees GROUP BY Department ORDER BY AttritionRatePct DESC;
+GO
+
+-- QUERY 07: Attrition by gender
+SELECT Gender, COUNT(*) AS Headcount, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS Leavers FROM dbo.HR_Employees GROUP BY Gender;
+GO
+
+-- QUERY 08: Attrition by marital status
+SELECT MaritalStatus, COUNT(*) AS Headcount, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY MaritalStatus;
+GO
+
+-- QUERY 09: Attrition by business travel
+SELECT BusinessTravel, COUNT(*) AS Headcount, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY BusinessTravel;
+GO
+
+-- QUERY 10: Overtime and attrition
+SELECT OverTime, COUNT(*) AS Headcount, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY OverTime;
+GO
+
+-- QUERY 11: Average age by attrition
+SELECT Attrition, AVG(CAST(Age AS FLOAT)) AS AvgAge FROM dbo.HR_Employees GROUP BY Attrition;
+GO
+
+-- QUERY 12: Attrition by age band
+SELECT CASE WHEN Age<26 THEN '18-25' WHEN Age<36 THEN '26-35' WHEN Age<46 THEN '36-45' WHEN Age<56 THEN '46-55' ELSE '56-60' END AS AgeBand, COUNT(*) AS Employees, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY CASE WHEN Age<26 THEN '18-25' WHEN Age<36 THEN '26-35' WHEN Age<46 THEN '36-45' WHEN Age<56 THEN '46-55' ELSE '56-60' END ORDER BY AgeBand;
+GO
+
+-- QUERY 13: Average tenure by attrition
+SELECT Attrition, AVG(CAST(YearsAtCompany AS FLOAT)) AS AvgYearsAtCompany FROM dbo.HR_Employees GROUP BY Attrition;
+GO
+
+-- QUERY 14: Employees with short tenure
+SELECT TOP (25) EmployeeNumber, Age, Department, JobRole, YearsAtCompany, Attrition FROM dbo.HR_Employees WHERE YearsAtCompany<=2 ORDER BY YearsAtCompany, Age;
+GO
+
+-- QUERY 15: High earners
+SELECT TOP (20) EmployeeNumber, Department, JobRole, MonthlyIncome FROM dbo.HR_Employees ORDER BY MonthlyIncome DESC;
+GO
+
+-- QUERY 16: Salary bands
+SELECT CASE WHEN MonthlyIncome<3000 THEN 'Under 3k' WHEN MonthlyIncome<6000 THEN '3k-5,999' WHEN MonthlyIncome<10000 THEN '6k-9,999' ELSE '10k+' END AS SalaryBand, COUNT(*) AS Employees, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY CASE WHEN MonthlyIncome<3000 THEN 'Under 3k' WHEN MonthlyIncome<6000 THEN '3k-5,999' WHEN MonthlyIncome<10000 THEN '6k-9,999' ELSE '10k+' END;
+GO
+
+-- QUERY 17: Attrition by job role
+SELECT JobRole, COUNT(*) AS Employees, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS Leavers, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY JobRole ORDER BY AttritionRatePct DESC;
+GO
+
+-- QUERY 18: Job satisfaction and attrition
+SELECT JobSatisfaction, COUNT(*) AS Employees, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY JobSatisfaction ORDER BY JobSatisfaction;
+GO
+
+-- QUERY 19: Environment satisfaction and attrition
+SELECT EnvironmentSatisfaction, COUNT(*) AS Employees, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY EnvironmentSatisfaction ORDER BY EnvironmentSatisfaction;
+GO
+
+-- QUERY 20: Work-life balance and attrition
+SELECT WorkLifeBalance, COUNT(*) AS Employees, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY WorkLifeBalance ORDER BY WorkLifeBalance;
+GO
+
+-- QUERY 21: Education field distribution
+SELECT EducationField, COUNT(*) AS Employees FROM dbo.HR_Employees GROUP BY EducationField ORDER BY Employees DESC;
+GO
+
+-- QUERY 22: Education level and salary
+SELECT Education, COUNT(*) AS Employees, AVG(MonthlyIncome) AS AvgMonthlyIncome FROM dbo.HR_Employees GROUP BY Education ORDER BY Education;
+GO
+
+-- QUERY 23: Promotion delay
+SELECT TOP (20) EmployeeNumber, Department, JobRole, YearsAtCompany, YearsSinceLastPromotion FROM dbo.HR_Employees ORDER BY YearsSinceLastPromotion DESC;
+GO
+
+-- QUERY 24: Manager tenure and attrition
+SELECT CASE WHEN YearsWithCurrManager<=1 THEN '0-1' WHEN YearsWithCurrManager<=3 THEN '2-3' WHEN YearsWithCurrManager<=6 THEN '4-6' ELSE '7+' END AS ManagerTenureBand, COUNT(*) AS Employees, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY CASE WHEN YearsWithCurrManager<=1 THEN '0-1' WHEN YearsWithCurrManager<=3 THEN '2-3' WHEN YearsWithCurrManager<=6 THEN '4-6' ELSE '7+' END;
+GO
+
+-- QUERY 25: Companies worked and attrition
+SELECT NumCompaniesWorked, COUNT(*) AS Employees, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY NumCompaniesWorked ORDER BY NumCompaniesWorked;
+GO
+
+-- QUERY 26: Training frequency and attrition
+SELECT TrainingTimesLastYear, COUNT(*) AS Employees, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY TrainingTimesLastYear ORDER BY TrainingTimesLastYear;
+GO
+
+-- QUERY 27: Performance rating distribution
+SELECT PerformanceRating, COUNT(*) AS Employees FROM dbo.HR_Employees GROUP BY PerformanceRating ORDER BY PerformanceRating;
+GO
+
+-- QUERY 28: Salary hike by attrition
+SELECT Attrition, AVG(PercentSalaryHike) AS AvgSalaryHikePct FROM dbo.HR_Employees GROUP BY Attrition;
+GO
+
+-- QUERY 29: Distance from home and attrition
+SELECT CASE WHEN DistanceFromHome<=5 THEN '0-5' WHEN DistanceFromHome<=10 THEN '6-10' WHEN DistanceFromHome<=20 THEN '11-20' ELSE '21-29' END AS DistanceBand, COUNT(*) AS Employees, AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY CASE WHEN DistanceFromHome<=5 THEN '0-5' WHEN DistanceFromHome<=10 THEN '6-10' WHEN DistanceFromHome<=20 THEN '11-20' ELSE '21-29' END;
+GO
+
+-- QUERY 30: Top 10 departments and roles by headcount
+SELECT TOP (10) Department, JobRole, COUNT(*) AS Employees FROM dbo.HR_Employees GROUP BY Department, JobRole ORDER BY Employees DESC;
+GO
+
+-- QUERY 31: CTE: department attrition summary
+WITH Dept AS (SELECT Department, COUNT(*) AS Headcount, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS Leavers FROM dbo.HR_Employees GROUP BY Department) SELECT Department, Headcount, Leavers, CAST(100.0*Leavers/Headcount AS DECIMAL(6,2)) AS AttritionRatePct FROM Dept ORDER BY AttritionRatePct DESC;
+GO
+
+-- QUERY 32: CTE: employees above department average salary
+WITH DeptAvg AS (SELECT Department, AVG(MonthlyIncome) AS AvgIncome FROM dbo.HR_Employees GROUP BY Department) SELECT e.EmployeeNumber,e.Department,e.JobRole,e.MonthlyIncome,d.AvgIncome FROM dbo.HR_Employees e JOIN DeptAvg d ON e.Department=d.Department WHERE e.MonthlyIncome>d.AvgIncome ORDER BY e.Department,e.MonthlyIncome DESC;
+GO
+
+-- QUERY 33: CTE: attrition by satisfaction group
+WITH S AS (SELECT JobSatisfaction, COUNT(*) AS Employees, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS Leavers FROM dbo.HR_Employees GROUP BY JobSatisfaction) SELECT *, CAST(100.0*Leavers/Employees AS DECIMAL(6,2)) AS AttritionRatePct FROM S;
+GO
+
+-- QUERY 34: CTE: tenure cohorts
+WITH Cohort AS (SELECT CASE WHEN YearsAtCompany<2 THEN 'Less than 2' WHEN YearsAtCompany<5 THEN '2-4' WHEN YearsAtCompany<10 THEN '5-9' ELSE '10+' END AS TenureGroup, Attrition FROM dbo.HR_Employees) SELECT TenureGroup,COUNT(*) AS Employees,AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM Cohort GROUP BY TenureGroup;
+GO
+
+-- QUERY 35: CTE: overtime cohort
+WITH OT AS (SELECT OverTime, COUNT(*) AS Employees, SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS Leavers FROM dbo.HR_Employees GROUP BY OverTime) SELECT *,CAST(100.0*Leavers/Employees AS DECIMAL(6,2)) AS AttritionRatePct FROM OT;
+GO
+
+-- QUERY 36: ROW_NUMBER: salary ranking within department
+SELECT EmployeeNumber,Department,JobRole,MonthlyIncome,ROW_NUMBER() OVER(PARTITION BY Department ORDER BY MonthlyIncome DESC) AS SalaryRank FROM dbo.HR_Employees;
+GO
+
+-- QUERY 37: RANK: salary ranking by job role
+SELECT EmployeeNumber,JobRole,MonthlyIncome,RANK() OVER(PARTITION BY JobRole ORDER BY MonthlyIncome DESC) AS RoleSalaryRank FROM dbo.HR_Employees;
+GO
+
+-- QUERY 38: DENSE_RANK: tenure ranking
+SELECT EmployeeNumber,Department,YearsAtCompany,DENSE_RANK() OVER(ORDER BY YearsAtCompany DESC) AS TenureRank FROM dbo.HR_Employees;
+GO
+
+-- QUERY 39: NTILE: salary quartiles
+SELECT EmployeeNumber,MonthlyIncome,NTILE(4) OVER(ORDER BY MonthlyIncome) AS SalaryQuartile FROM dbo.HR_Employees;
+GO
+
+-- QUERY 40: LAG: compare salary with previous employee in role
+SELECT EmployeeNumber,JobRole,MonthlyIncome,LAG(MonthlyIncome) OVER(PARTITION BY JobRole ORDER BY EmployeeNumber) AS PreviousSalary FROM dbo.HR_Employees;
+GO
+
+-- QUERY 41: LEAD: next salary in department
+SELECT EmployeeNumber,Department,MonthlyIncome,LEAD(MonthlyIncome) OVER(PARTITION BY Department ORDER BY EmployeeNumber) AS NextSalary FROM dbo.HR_Employees;
+GO
+
+-- QUERY 42: Running average salary by employee number
+SELECT EmployeeNumber,MonthlyIncome,AVG(MonthlyIncome) OVER(ORDER BY EmployeeNumber ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS RunningAvgIncome FROM dbo.HR_Employees;
+GO
+
+-- QUERY 43: Department share of total workforce
+SELECT Department,COUNT(*) AS Employees,100.0*COUNT(*)/SUM(COUNT(*)) OVER() AS WorkforceSharePct FROM dbo.HR_Employees GROUP BY Department;
+GO
+
+-- QUERY 44: Department attrition rate vs company rate
+WITH X AS (SELECT Department,AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS DeptRate FROM dbo.HR_Employees GROUP BY Department), G AS (SELECT AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS OverallRate FROM dbo.HR_Employees) SELECT Department,DeptRate,OverallRate,DeptRate-OverallRate AS GapPctPoints FROM X CROSS JOIN G ORDER BY GapPctPoints DESC;
+GO
+
+-- QUERY 45: Employees with high income and overtime
+SELECT EmployeeNumber,Department,JobRole,MonthlyIncome,OverTime,Attrition FROM dbo.HR_Employees WHERE MonthlyIncome>(SELECT AVG(MonthlyIncome) FROM dbo.HR_Employees) AND OverTime='Yes' ORDER BY MonthlyIncome DESC;
+GO
+
+-- QUERY 46: Create attrition view
+CREATE OR ALTER VIEW dbo.vw_HR_AttritionSummary AS SELECT Department,JobRole,COUNT(*) AS Employees,SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS Leavers,AVG(CASE WHEN Attrition='Yes' THEN 1.0 ELSE 0.0 END)*100 AS AttritionRatePct FROM dbo.HR_Employees GROUP BY Department,JobRole;
+GO
+
+-- QUERY 47: Query attrition view
+SELECT * FROM dbo.vw_HR_AttritionSummary ORDER BY AttritionRatePct DESC;
+GO
+
+-- QUERY 48: Stored procedure: department summary
+CREATE OR ALTER PROCEDURE dbo.usp_DepartmentSummary @Department VARCHAR(100)=NULL AS BEGIN SET NOCOUNT ON; SELECT Department,COUNT(*) AS Employees,SUM(CASE WHEN Attrition='Yes' THEN 1 ELSE 0 END) AS Leavers,AVG(MonthlyIncome) AS AvgMonthlyIncome FROM dbo.HR_Employees WHERE @Department IS NULL OR Department=@Department GROUP BY Department; END;
+GO
+
+-- QUERY 49: Execute stored procedure
+EXEC dbo.usp_DepartmentSummary @Department='Sales';
+GO
+
+-- QUERY 50: Data quality validation checks
+SELECT 'Rows' AS CheckName,COUNT(*) AS Result FROM dbo.HR_Employees UNION ALL SELECT 'Null EmployeeNumber',COUNT(*) FROM dbo.HR_Employees WHERE EmployeeNumber IS NULL UNION ALL SELECT 'Invalid Age',COUNT(*) FROM dbo.HR_Employees WHERE Age<18 OR Age>65 UNION ALL SELECT 'Negative Income',COUNT(*) FROM dbo.HR_Employees WHERE MonthlyIncome<0;
+GO
